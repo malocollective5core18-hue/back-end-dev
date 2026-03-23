@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev Environment Pro · Multi-Framework Setup</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #f5f7fc;
+            --surface: #ffffff;
+            --border: #e0e8f2;
+            --text: #1a2d40;
+            --text-light: #4a658a;
+            --accent: #4361ee;
+            --accent-light: #6c86ff;
+            --php: #787cb5;
+            --python: #3572A5;
+            --node: #68a063;
+            --laravel: #f9322c;
+            --django: #092e20;
+            --express: #000000;
+            --fastapi: #009688;
+            --flask: #000000;
+            --symfony: #000000;
+            --codeigniter: #dd4814;
+            --nestjs: #e0234e;
+            --koa: #33333d;
+            --code-bg: #1e2e42;
+            --code-text: #e3eef9;
+            --sidebar-bg: #e9f0fa;
+            --info-bg: #e8f0fe;
+            --success-bg: #e3f7ec;
+            --warning-bg: #fff3d9;
+            --error-bg: #fee2e2;
+        }
+        body.dark {
+            --bg: #0f1a28;
+            --surface: #1e2c3e;
+            --border: #2f425a;
+            --text: #e2edf9;
+            --text-light: #9cb3d5;
+            --accent: #6386ff;
+            --accent-light: #85a2ff;
+            --php: #9fa4e0;
+            --python: #5a9fd4;
+            --node: #84ba7f;
+            --laravel: #ff5f5a;
+            --django: #1a6d4c;
+            --express: #cccccc;
+            --fastapi: #26a69a;
+            --flask: #cccccc;
+            --symfony: #cccccc;
+            --codeigniter: #ff7b4a;
+            --nestjs: #ff6b8b;
+            --koa: #9aa0a6;
+            --code-bg: #142433;
+            --code-text: #d2e3f5;
+            --sidebar-bg: #162537;
+            --info-bg: #1e3146;
+            --success-bg: #1d2f24;
+            --warning-bg: #2f2a1d;
+            --error-bg: #2f1d1d;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            transition: background-color 0.3s ease, color 0.2s ease;
+            zoom: 0.5;
+        }
+        .app { display: flex; min-height: 100vh; padding-left:45px; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem 1.2rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            overflow-y: auto;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            z-index: 1000;
+            transform: translateX(-100%);
+        }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 2rem;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        .sidebar-header i { color: var(--accent); transition: color 0.2s ease; }
+        .sidebar h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            margin: 1.8rem 0 0.8rem;
+            transition: color 0.2s ease;
+        }
+        .sidebar nav { display: flex; flex-direction: column; gap: 0.4rem; }
+        .sidebar a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.7rem 0.9rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        .sidebar a .step-icon {
+            background: var(--accent);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .sidebar a:hover { background: var(--surface); border-left-color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .sidebar a.active { background: var(--surface); border-left-color: var(--accent); font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+        /* Main content */
+        .main {
+            flex: 1;
+            margin-left: 0;
+            padding: 1.5rem 2.5rem;
+            transition: margin-left 0.3s ease, background-color 0.3s ease;
+            max-width: 1400px;
+        }
+        .main.open { margin-left: 300px; }
+        .menu-toggle {
+            position: fixed;
+            top: 18px;
+            left: 18px;
+            z-index: 1000;
+            display: flex;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            width: 44px;
+            height: 44px;
+            font-size: 1.6rem;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin: 0;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .menu-toggle:hover { background: var(--accent); color: white; }
+
+        /* Header */
+        .main-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .header-left { display: flex; align-items: center; gap: 1rem; }
+        .header-title { font-size: 1.8rem; font-weight: 700; padding-left:14%; }
+        .stack-summary {
+            background: var(--info-bg);
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+        .progress-indicator {
+            background: var(--surface);
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 1px solid var(--border);
+        }
+
+        /* Theme Toggle */
+        .theme-toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 1.5rem 0 0.8rem;
+            padding: 0.4rem;
+            background: var(--surface);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: background-color 0.2s ease;
+        }
+        .theme-toggle-switch {
+            width: 48px;
+            height: 26px;
+            background: var(--border);
+            border-radius: 8px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .theme-toggle-switch:after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .theme-toggle-switch.active {
+            background: var(--accent);
+        }
+        .theme-toggle-switch.active:after {
+            transform: translateX(22px);
+        }
+        body.dark .theme-toggle-switch:after {
+            background: #e2e8f0;
+        }
+
+        /* Language Cards */
+        .lang-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.2rem;
+            margin: 1.5rem 0;
+        }
+        .lang-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .lang-card:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+        .lang-card.active {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 16px rgba(67, 97, 238, 0.2);
+        }
+        .lang-card i { font-size: 3.5rem; margin-bottom: 0.8rem; transition: color 0.2s ease; }
+        .lang-card.php i { color: var(--php); }
+        .lang-card.python i { color: var(--python); }
+        .lang-card.node i { color: var(--node); }
+        .lang-card.active i { color: white; }
+        .lang-card h3 { font-size: 1.2rem; margin-bottom: 0.4rem; }
+        .lang-card p { font-size: 0.85rem; opacity: 0.8; }
+
+        /* Framework Sections */
+        .framework-section {
+            margin: 1.5rem 0 2.5rem;
+            display: none;
+        }
+        .framework-section.active { display: block; }
+        .framework-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-top: 0.8rem;
+        }
+        .framework-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .framework-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+        .framework-card.active {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 16px rgba(67, 97, 238, 0.2);
+        }
+        .framework-card i { font-size: 1.8rem; margin-right: 0.8rem; transition: color 0.2s ease; }
+        .framework-card.active i { color: white; }
+        .framework-card .framework-name { font-weight: 600; font-size: 1rem; }
+        .framework-card .framework-desc { font-size: 0.8rem; opacity: 0.8; margin-top: 0.3rem; }
+
+        /* OS Grid */
+        .os-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.8rem;
+            margin: 1.2rem 0;
+        }
+        .os-option {
+            text-align: center;
+            padding: 1.2rem;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .os-option:hover { border-color: var(--accent); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+        .os-option.active {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 16px rgba(67, 97, 238, 0.2);
+        }
+        .os-option i { font-size: 2.2rem; display: block; margin-bottom: 0.4rem; transition: color 0.2s ease; }
+        .os-option.active i { color: white; }
+        .os-option span { font-size: 0.9rem; font-weight: 500; }
+
+        /* Database Grid */
+        .db-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.8rem;
+            margin: 1.2rem 0;
+        }
+        .db-option {
+            text-align: center;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .db-option:hover { border-color: var(--accent); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+        .db-option.active {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 16px rgba(67, 97, 238, 0.2);
+        }
+        .db-option i { font-size: 1.8rem; margin-bottom: 0.3rem; transition: color 0.2s ease; }
+        .db-option.active i { color: white; }
+        .db-option span { font-size: 0.85rem; font-weight: 500; }
+
+        /* Step Cards */
+        .step-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .step-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+        .step-number {
+            background: var(--accent);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            transition: background-color 0.2s ease;
+        }
+        .step-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            transition: color 0.2s ease;
+        }
+
+        /* Command Blocks */
+        .cmd-block {
+            background: var(--code-bg);
+            color: var(--code-text);
+            border-radius: 16px;
+            padding: 1.5rem 1.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.2rem;
+            position: relative;
+            margin: 1.2rem 0;
+            white-space: pre-wrap;
+            border: 1px solid var(--border);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.8rem;
+            right: 0.8rem;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: #e2e8f0;
+            padding: 0.4rem 0.9rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            backdrop-filter: blur(4px);
+            transition: all 0.2s ease;
+        }
+        .copy-btn:hover { background: var(--accent); color: white; }
+
+        .explain-box {
+            background: var(--info-bg);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin: 1.2rem 0;
+            border-left: 4px solid var(--accent);
+            transition: all 0.3s ease;
+        }
+        .explain-box.warning-box {
+            background: var(--warning-bg);
+            border-left-color: #f59e0b;
+        }
+        .explain-box.success-box {
+            background: var(--success-bg);
+            border-left-color: #10b981;
+        }
+        .explain-box.error-box {
+            background: var(--error-bg);
+            border-left-color: #ef4444;
+        }
+
+        @media (max-width: 1200px) {
+            .sidebar { width: 240px; }
+            .main { padding: 1.4rem; }
+            .lang-grid, .os-grid, .db-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .framework-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar { width: 220px; }
+            .main { padding: 1.25rem; }
+            .lang-grid, .os-grid, .db-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+            .step-card { padding: 1.2rem; }
+            .header-title { font-size: 1.4rem; }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 260px; }
+            .main { margin-left: 0; padding: 1rem; }
+            .lang-grid, .os-grid, .db-grid { grid-template-columns: 1fr; }
+            .step-title { font-size: 1.4rem; }
+            .framework-grid { grid-template-columns: 1fr; }
+            .main-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .header-left { width: 100%; }
+            .menu-toggle { top: 12px; left: 12px; width: 42px; height: 42px; font-size: 1.4rem; }
+        }
+
+        @media (max-width: 576px) {
+            .container { padding: 0.8rem; }
+            .sidebar { position: fixed; width: 100%; left: 0; top: 0; bottom: 0; z-index: 1100; }
+            .main { padding: 0.8rem; }
+            .step-card { padding: 1rem; }
+            .header-title { font-size: 1.2rem; }
+            .lang-card, .framework-card, .os-option, .db-option { min-height: auto; padding: 0.9rem; }
+            .step-number { width: 34px; height: 34px; font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-layer-group"></i>
+            <span style="padding-left: 6%;">Framework Pro</span>
+        </div>
+        <h3>📋 SETUP STEPS</h3>
+        <nav>
+            <a href="#step1" class="active"><span class="step-icon">1</span> Choose Language</a>
+            <a href="#step2"><span class="step-icon">2</span> Choose Framework</a>
+            <a href="#step3"><span class="step-icon">3</span> Choose OS</a>
+            <a href="#step4"><span class="step-icon">4</span> Download & Install</a>
+            <a href="#step5"><span class="step-icon">5</span> Package Manager</a>
+            <a href="#step6"><span class="step-icon">6</span> Choose Database</a>
+            <a href="#step7"><span class="step-icon">7</span> Install Database</a>
+            <a href="#step8"><span class="step-icon">8</span> Create Project</a>
+            <a href="#step9"><span class="step-icon">9</span> Configure DB</a>
+            <a href="#step10"><span class="step-icon">10</span> Run & Test</a>
+        <a href="#step11"><span class="step-icon">11</span> Cheat Sheet</a>
+        </nav>
+        
+        <!-- Theme Toggle -->
+        <div class="theme-toggle-container">
+            <span><i class="fas fa-moon"></i> Dark mode</span>
+            <div class="theme-toggle-switch" id="themeToggle"></div>
+        </div>
+
+        <div class="explain-box" style="margin-top: 1.5rem; font-size: 0.85rem;">
+            <i class="fas fa-info-circle"></i>
+            <strong>10-step setup</strong> - Follow each step for your stack
+        </div>
+        <button class="explain-box" style="color: white;" onclick="window.open('tips.html','_self')">
+  more deep DevOps tips
+</button>
+    </aside>
+
+    <main class="main" id="main">
+        <div class="main-header">
+            <div class="header-left">
+                <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
+                <h1 class="header-title"><i class="fas fa-cubes" style="color: var(--accent); margin-right: 0.8rem;"></i>Multi-Framework Setup Assistant</h1>
+            </div>
+            <div class="header-right">
+                <div class="stack-summary" id="stackSummary">PHP + Laravel + Ubuntu + MySQL</div>
+                <div class="progress-indicator" id="progressIndicator">Step 1 of 10</div>
+            </div>
+        </div>
+
+        <!-- Language Selection -->
+        <div class="step-card" id="step1">
+            <div class="step-header">
+                <div class="step-number">1</div>
+                <div class="step-title">Choose Programming Language</div>
+            </div>
+            <div class="lang-grid">
+                <div class="lang-card php active" data-lang="php">
+                    <i class="fab fa-php"></i>
+                    <h3>PHP</h3>
+                    <p>Web's favorite server language</p>
+                </div>
+                <div class="lang-card python" data-lang="python">
+                    <i class="fab fa-python"></i>
+                    <h3>Python</h3>
+                    <p>Versatile & beginner-friendly</p>
+                </div>
+                <div class="lang-card node" data-lang="node">
+                    <i class="fab fa-node-js"></i>
+                    <h3>Node.js</h3>
+                    <p>JavaScript on the server</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Framework Selection -->
+        <div class="step-card" id="step2">
+            <div class="step-header">
+                <div class="step-number">2</div>
+                <div class="step-title">Choose Framework</div>
+            </div>
+            
+            <!-- PHP Frameworks -->
+            <div class="framework-section active" id="php-frameworks">
+                <h3>PHP Frameworks</h3>
+                <div class="framework-grid">
+                    <div class="framework-card active" data-framework="laravel">
+                        <i class="fab fa-laravel"></i>
+                        <span class="framework-name">Laravel</span>
+                        <div class="framework-desc">Full-stack, elegant syntax</div>
+                    </div>
+                    <div class="framework-card" data-framework="symfony">
+                        <i class="fas fa-cubes"></i>
+                        <span class="framework-name">Symfony</span>
+                        <div class="framework-desc">Enterprise-grade, reusable</div>
+                    </div>
+                    <div class="framework-card" data-framework="codeigniter">
+                        <i class="fas fa-bolt"></i>
+                        <span class="framework-name">CodeIgniter</span>
+                        <div class="framework-desc">Lightweight, simple</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Python Frameworks -->
+            <div class="framework-section" id="python-frameworks">
+                <h3>Python Frameworks</h3>
+                <div class="framework-grid">
+                    <div class="framework-card active" data-framework="django">
+                        <i class="fab fa-python"></i>
+                        <span class="framework-name">Django</span>
+                        <div class="framework-desc">Batteries-included, admin</div>
+                    </div>
+                    <div class="framework-card" data-framework="flask">
+                        <i class="fas fa-flask"></i>
+                        <span class="framework-name">Flask</span>
+                        <div class="framework-desc">Microframework, flexible</div>
+                    </div>
+                    <div class="framework-card" data-framework="fastapi">
+                        <i class="fas fa-rocket"></i>
+                        <span class="framework-name">FastAPI</span>
+                        <div class="framework-desc">Modern, async, OpenAPI</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Node.js Frameworks -->
+            <div class="framework-section" id="node-frameworks">
+                <h3>Node.js Frameworks</h3>
+                <div class="framework-grid">
+                    <div class="framework-card active" data-framework="express">
+                        <i class="fas fa-bolt"></i>
+                        <span class="framework-name">Express</span>
+                        <div class="framework-desc">Minimalist, most popular</div>
+                    </div>
+                    <div class="framework-card" data-framework="nestjs">
+                        <i class="fas fa-crown"></i>
+                        <span class="framework-name">NestJS</span>
+                        <div class="framework-desc">Progressive, TypeScript</div>
+                    </div>
+                    <div class="framework-card" data-framework="koa">
+                        <i class="fas fa-leaf"></i>
+                        <span class="framework-name">Koa</span>
+                        <div class="framework-desc">Next-gen, async/await</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- OS Selection -->
+        <div class="step-card" id="step3">
+            <div class="step-header">
+                <div class="step-number">3</div>
+                <div class="step-title">Choose Your Operating System</div>
+            </div>
+            <div class="os-grid">
+                <div class="os-option active" data-os="windows">
+                    <i class="fab fa-windows"></i>
+                    <span>Windows 10/11</span>
+                </div>
+                <div class="os-option" data-os="mac">
+                    <i class="fab fa-apple"></i>
+                    <span>macOS</span>
+                </div>
+                <div class="os-option" data-os="ubuntu">
+                    <i class="fab fa-ubuntu"></i>
+                    <span>Ubuntu/Linux</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Content Sections -->
+        <div class="step-card" id="step4">
+            <div class="step-header">
+                <div class="step-number">4</div>
+                <div class="step-title">Download & Install <span id="langVersion"></span></div>
+            </div>
+            <div id="installContent"></div>
+        </div>
+
+        <div class="step-card" id="step5">
+            <div class="step-header">
+                <div class="step-number">5</div>
+                <div class="step-title">Package Manager Setup</div>
+            </div>
+            <div id="packageContent"></div>
+        </div>
+
+        <div class="step-card" id="step6">
+            <div class="step-header">
+                <div class="step-number">6</div>
+                <div class="step-title">Choose Database</div>
+            </div>
+            <div class="db-grid">
+                <div class="db-option active" data-db="mysql">
+                    <i class="fas fa-database"></i>
+                    <span>MySQL</span>
+                </div>
+                <div class="db-option" data-db="postgres">
+                    <i class="fas fa-database"></i>
+                    <span>PostgreSQL</span>
+                </div>
+                <div class="db-option" data-db="mongodb">
+                    <i class="fas fa-leaf"></i>
+                    <span>MongoDB</span>
+                </div>
+                <div class="db-option" data-db="sqlite">
+                    <i class="fas fa-file-database"></i>
+                    <span>SQLite</span>
+                </div>
+                <div class="db-option" data-db="redis">
+                    <i class="fas fa-bolt"></i>
+                    <span>Redis</span>
+                </div>
+                <div class="db-option" data-db="mariadb">
+                    <i class="fas fa-database"></i>
+                    <span>MariaDB</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-card" id="step7">
+            <div class="step-header">
+                <div class="step-number">7</div>
+                <div class="step-title">Install Database</div>
+            </div>
+            <div id="dbInstallContent"></div>
+        </div>
+
+        <div class="step-card" id="step8">
+            <div class="step-header">
+                <div class="step-number">8</div>
+                <div class="step-title">Create <span id="frameworkName"></span> Project</div>
+            </div>
+            <div id="projectContent"></div>
+        </div>
+
+        <div class="step-card" id="step9">
+            <div class="step-header">
+                <div class="step-number">9</div>
+                <div class="step-title">Configure Database Connection</div>
+            </div>
+            <div id="dbConfigContent"></div>
+        </div>
+
+        <div class="step-card" id="step10">
+            <div class="step-header">
+                <div class="step-number">10</div>
+                <div class="step-title">Run & Test Your Setup</div>
+            </div>
+            <div id="testContent"></div>
+        </div>
+
+        <div class="step-card" id="step11">
+            <div class="step-header">
+                <div class="step-number">11</div>
+                <div class="step-title">Perfect Cheat Sheet</div>
+            </div>
+            <div id="cheatContent"></div>
+        </div>
+    </main>
+</div>
+
+<script>
+    (function() {
+        // Current selections
+        let currentLang = 'php';
+        let currentFramework = 'laravel';
+        let currentOS = 'windows';
+        let currentDB = 'mysql';
+        let darkMode = false;
+
+        // Load from localStorage
+        currentLang = localStorage.getItem('currentLang') || 'php';
+        currentFramework = localStorage.getItem('currentFramework') || 'laravel';
+        currentOS = localStorage.getItem('currentOS') || 'windows';
+        currentDB = localStorage.getItem('currentDB') || 'mysql';
+
+        // Shared configurations
+        const sharedDownloads = {
+            php: {
+                windows: '# Download PHP from windows.php.net\n# Run installer - add to PATH\n\n# Verify PHP:\nphp -v',
+                mac: 'brew install php@8.3\n\n# Verify:\nphp -v',
+                ubuntu: 'sudo apt update\nsudo apt install php8.3 php8.3-cli php8.3-mbstring php8.3-xml php8.3-bcmath php8.3-zip php8.3-curl php8.3-mysql php8.3-pgsql php8.3-sqlite3 -y\n\n# Verify:\nphp -v'
+            },
+            python: {
+                windows: '# Download Python from python.org\n# Run installer - CHECK "Add Python to PATH"\n\n# Verify:\npython --version\npip --version',
+                mac: '# Download from python.org or use Homebrew\nbrew install python@3.11\n\n# Verify:\npython3 --version\npip3 --version',
+                ubuntu: 'sudo apt update\nsudo apt install python3 python3-pip python3-venv -y\n\n# Verify:\npython3 --version\npip3 --version'
+            },
+            node: {
+                windows: '# Download Node.js from nodejs.org\n# Run installer (includes npm)\n\n# Verify:\nnode --version\nnpm --version',
+                mac: 'brew install node@20\n\n# Verify:\nnode --version\nnpm --version',
+                ubuntu: 'curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -\nsudo apt install -y nodejs\n\n# Verify:\nnode --version\nnpm --version'
+            }
+        };
+
+        const sharedPackageManagers = {
+            php: {
+                windows: '# Download Composer from getcomposer.org\n# Or via command line:\nphp -r "copy(\'https://getcomposer.org/installer\', \'composer-setup.php\');"\nphp composer-setup.php\nphp -r "unlink(\'composer-setup.php\');"\nmove composer.phar C:\\ProgramData\\ComposerSetup\\bin\\composer.phar',
+                mac: 'php -r "copy(\'https://getcomposer.org/installer\', \'composer-setup.php\');"\nphp composer-setup.php\nphp -r "unlink(\'composer-setup.php\');"\nsudo mv composer.phar /usr/local/bin/composer',
+                ubuntu: 'php -r "copy(\'https://getcomposer.org/installer\', \'composer-setup.php\');"\nphp composer-setup.php\nphp -r "unlink(\'composer-setup.php\');"\nsudo mv composer.phar /usr/local/bin/composer'
+            },
+            python: {
+                windows: 'python -m venv myenv\nmyenv\\Scripts\\activate\npip install --upgrade pip',
+                mac: 'python3 -m venv myenv\nsource myenv/bin/activate\npip install --upgrade pip',
+                ubuntu: 'python3 -m venv myenv\nsource myenv/bin/activate\npip install --upgrade pip'
+            },
+            node: {
+                windows: 'mkdir myapp\ncd myapp\nnpm init -y',
+                mac: 'mkdir myapp\ncd myapp\nnpm init -y',
+                ubuntu: 'mkdir myapp\ncd myapp\nnpm init -y'
+            }
+        };
+
+        // Framework data with real commands
+        const frameworks = {
+            php: {
+                version: 'PHP 8.3',
+                packages: {
+                    laravel: {
+                        name: 'Laravel 11',
+                        download: sharedDownloads.php,
+                        packageManager: sharedPackageManagers.php,
+                        create: 'composer create-project laravel/laravel myapp\ncd myapp',
+                        dbConfig: {
+                            mysql: 'DB_CONNECTION=mysql\nDB_HOST=127.0.0.1\nDB_PORT=3306\nDB_DATABASE=laravel_db\nDB_USERNAME=root\nDB_PASSWORD=',
+                            postgres: 'DB_CONNECTION=pgsql\nDB_HOST=127.0.0.1\nDB_PORT=5432\nDB_DATABASE=laravel_db\nDB_USERNAME=postgres\nDB_PASSWORD=',
+                            mongodb: '# Laravel MongoDB via jenssegers/mongodb\ncomposer require jenssegers/mongodb\n\n# .env\nDB_CONNECTION=mongodb\nDB_HOST=127.0.0.1\nDB_PORT=27017\nDB_DATABASE=laravel_db',
+                            sqlite: 'DB_CONNECTION=sqlite\nDB_DATABASE=/absolute/path/to/database.sqlite',
+                            redis: '# For caching\nREDIS_HOST=127.0.0.1\nREDIS_PASSWORD=null\nREDIS_PORT=6379',
+                            mariadb: 'DB_CONNECTION=mysql\nDB_HOST=127.0.0.1\nDB_PORT=3306\nDB_DATABASE=laravel_db\nDB_USERNAME=root\nDB_PASSWORD='
+                        },
+                        run: 'php artisan serve',
+                        test: 'php artisan test'
+                    },
+                    symfony: {
+                        name: 'Symfony 7',
+                        download: sharedDownloads.php,
+                        packageManager: sharedPackageManagers.php,
+                        create: 'composer create-project symfony/skeleton:"7.*" myapp\ncd myapp\ncomposer require webapp',
+                        dbConfig: {
+                            mysql: 'DATABASE_URL="mysql://root:@127.0.0.1:3306/symfony_db?serverVersion=8.0"',
+                            postgres: 'DATABASE_URL="postgresql://postgres:@127.0.0.1:5432/symfony_db?serverVersion=15&charset=utf8"',
+                            mongodb: '# Install MongoDB ODM\ncomposer require doctrine/mongodb-odm-bundle',
+                            sqlite: 'DATABASE_URL="sqlite:///%kernel.project_dir%/var/data.db"',
+                            redis: 'REDIS_URL="redis://localhost:6379"'
+                        },
+                        run: 'symfony server:start',
+                        test: 'php bin/phpunit'
+                    },
+                    codeigniter: {
+                        name: 'CodeIgniter 4',
+                        download: sharedDownloads.php,
+                        packageManager: sharedPackageManagers.php,
+                        create: 'composer create-project codeigniter4/appstarter myapp\ncd myapp',
+                        dbConfig: {
+                            mysql: 'public $defaultGroup = "default";\n\npublic $default = [\n    "DSN" => "",\n    "hostname" => "localhost",\n    "username" => "root",\n    "password" => "",\n    "database" => "ci4_db",\n    "DBDriver" => "MySQLi",\n    "port" => 3306,\n];',
+                            postgres: 'public $default = [\n    "hostname" => "localhost",\n    "username" => "postgres",\n    "password" => "",\n    "database" => "ci4_db",\n    "DBDriver" => "Postgre",\n    "port" => 5432,\n];',
+                            sqlite: 'public $default = [\n    "database" => WRITEPATH."ci4.sqlite",\n    "DBDriver" => "SQLite3",\n];'
+                        },
+                        run: 'php spark serve',
+                        test: 'php spark test'
+                    }
+                }
+            },
+            python: {
+                version: 'Python 3.11',
+                packages: {
+                    django: {
+                        name: 'Django 5.0',
+                        download: sharedDownloads.python,
+                        packageManager: sharedPackageManagers.python,
+                        create: 'pip install django\ndjango-admin startproject myproject\ncd myproject',
+                        dbConfig: {
+                            mysql: '# Install driver\npip install mysqlclient\n\n# settings.py\nDATABASES = {\n    \'default\': {\n        \'ENGINE\': \'django.db.backends.mysql\',\n        \'NAME\': \'django_db\',\n        \'USER\': \'root\',\n        \'PASSWORD\': \'\',\n        \'HOST\': \'localhost\',\n        \'PORT\': \'3306\',\n    }\n}',
+                            postgres: '# Install driver\npip install psycopg2-binary\n\n# settings.py\nDATABASES = {\n    \'default\': {\n        \'ENGINE\': \'django.db.backends.postgresql\',\n        \'NAME\': \'django_db\',\n        \'USER\': \'postgres\',\n        \'PASSWORD\': \'\',\n        \'HOST\': \'localhost\',\n        \'PORT\': \'5432\',\n    }\n}',
+                            mongodb: '# Install pymongo\npip install pymongo\n\n# Use djongo for Django MongoDB connector\npip install djongo',
+                            sqlite: 'DATABASES = {\n    \'default\': {\n        \'ENGINE\': \'django.db.backends.sqlite3\',\n        \'NAME\': BASE_DIR / \'db.sqlite3\',\n    }\n}',
+                            redis: '# Install django-redis\npip install django-redis\n\n# settings.py\nCACHES = {\n    \'default\': {\n        \'BACKEND\': \'django_redis.cache.RedisCache\',\n        \'LOCATION\': \'redis://127.0.0.1:6379/1\',\n    }\n}'
+                        },
+                        run: 'python manage.py runserver',
+                        test: 'python manage.py test'
+                    },
+                    flask: {
+                        name: 'Flask 3.0',
+                        download: sharedDownloads.python,
+                        packageManager: sharedPackageManagers.python,
+                        create: 'pip install flask\nmkdir myapp\ncd myapp',
+                        dbConfig: {
+                            mysql: '# Install SQLAlchemy and mysql driver\npip install flask-sqlalchemy mysqlclient\n\n# app.py\napp.config[\'SQLALCHEMY_DATABASE_URI\'] = \'mysql://root:@localhost/flask_db\'',
+                            postgres: 'pip install flask-sqlalchemy psycopg2-binary\n\napp.config[\'SQLALCHEMY_DATABASE_URI\'] = \'postgresql://postgres:@localhost/flask_db\'',
+                            mongodb: 'pip install flask-pymongo\n\napp.config[\'MONGO_URI\'] = \'mongodb://localhost:27017/flask_db\'',
+                            sqlite: 'app.config[\'SQLALCHEMY_DATABASE_URI\'] = \'sqlite:///app.db\''
+                        },
+                        run: 'flask run',
+                        test: 'pytest'
+                    },
+                    fastapi: {
+                        name: 'FastAPI 0.110',
+                        download: sharedDownloads.python,
+                        packageManager: sharedPackageManagers.python,
+                        create: 'pip install fastapi[all]\nmkdir myapp\ncd myapp',
+                        dbConfig: {
+                            mysql: 'pip install sqlalchemy aiomysql\n\n# database.py\nfrom sqlalchemy import create_engine\nengine = create_engine("mysql://root:@localhost/fastapi_db")',
+                            postgres: 'pip install sqlalchemy asyncpg\n\nengine = create_engine("postgresql://postgres:@localhost/fastapi_db")',
+                            mongodb: 'pip install motor\n\n# database.py\nfrom motor.motor_asyncio import AsyncIOMotorClient\nclient = AsyncIOMotorClient("mongodb://localhost:27017")',
+                            redis: 'pip install redis\n\nimport redis\nr = redis.Redis(host=\'localhost\', port=6379, db=0)'
+                        },
+                        run: 'uvicorn main:app --reload',
+                        test: 'pytest'
+                    }
+                }
+            },
+            node: {
+                version: 'Node.js 20',
+                packages: {
+                    express: {
+                        name: 'Express 4',
+                        download: sharedDownloads.node,
+                        packageManager: sharedPackageManagers.node,
+                        create: 'npm install express',
+                        dbConfig: {
+                            mysql: 'npm install mysql2\n\n// database.js\nconst mysql = require(\'mysql2\');\nconst connection = mysql.createConnection({\n    host: \'localhost\',\n    user: \'root\',\n    password: \'\',\n    database: \'node_db\'\n});',
+                            postgres: 'npm install pg\n\n// database.js\nconst { Pool } = require(\'pg\');\nconst pool = new Pool({\n    user: \'postgres\',\n    host: \'localhost\',\n    database: \'node_db\',\n    password: \'\',\n    port: 5432,\n});',
+                            mongodb: 'npm install mongoose\n\n// database.js\nconst mongoose = require(\'mongoose\');\nmongoose.connect(\'mongodb://localhost:27017/node_db\');',
+                            sqlite: 'npm install sqlite3\n\n// database.js\nconst sqlite3 = require(\'sqlite3\').verbose();\nconst db = new sqlite3.Database(\'./database.sqlite\');',
+                            redis: 'npm install redis\n\n// redis.js\nconst redis = require(\'redis\');\nconst client = redis.createClient();',
+                            mariadb: 'npm install mariadb'
+                        },
+                        run: 'node app.js',
+                        test: 'npm test'
+                    },
+                    nestjs: {
+                        name: 'NestJS 10',
+                        download: sharedDownloads.node,
+                        packageManager: sharedPackageManagers.node,
+                        create: 'npm i -g @nestjs/cli\nnest new myapp\ncd myapp',
+                        dbConfig: {
+                            mysql: 'npm install @nestjs/typeorm typeorm mysql2\n\n// app.module.ts\nTypeOrmModule.forRoot({\n    type: \'mysql\',\n    host: \'localhost\',\n    port: 3306,\n    username: \'root\',\n    password: \'\',\n    database: \'nestjs_db\',\n})',
+                            postgres: 'npm install @nestjs/typeorm typeorm pg\n\nTypeOrmModule.forRoot({\n    type: \'postgres\',\n    host: \'localhost\',\n    port: 5432,\n    username: \'postgres\',\n    password: \'\',\n    database: \'nestjs_db\',\n})',
+                            mongodb: 'npm install @nestjs/mongoose mongoose\n\nMongooseModule.forRoot(\'mongodb://localhost/nestjs_db\')'
+                        },
+                        run: 'npm run start:dev',
+                        test: 'npm run test'
+                    },
+                    koa: {
+                        name: 'Koa 2',
+                        download: sharedDownloads.node,
+                        packageManager: sharedPackageManagers.node,
+                        create: 'npm install koa\nmkdir myapp\ncd myapp',
+                        dbConfig: {
+                            mysql: 'npm install mysql2\n\n// app.js\nconst mysql = require(\'mysql2/promise\');\nconst connection = await mysql.createConnection({\n    host: \'localhost\',\n    user: \'root\',\n    database: \'koa_db\'\n});',
+                            postgres: 'npm install pg',
+                            mongodb: 'npm install mongoose'
+                        },
+                        run: 'node app.js',
+                        test: 'npm test'
+                    }
+                }
+            }
+        };
+
+        // Database installation commands
+        const dbInstall = {
+            mysql: {
+                windows: '# Download MySQL Installer from:\nhttps://dev.mysql.com/downloads/installer/\n# Choose "Developer Default" during installation\n\n# After install, MySQL runs as a service',
+                mac: 'brew install mysql\nmysql_secure_installation\nbrew services start mysql',
+                ubuntu: 'sudo apt install mysql-server -y\nsudo mysql_secure_installation\nsudo systemctl start mysql'
+            },
+            postgres: {
+                windows: '# Download PostgreSQL from:\nhttps://www.postgresql.org/download/windows/\n# Run installer, remember password',
+                mac: 'brew install postgresql\nbrew services start postgresql\ncreatedb mydb',
+                ubuntu: 'sudo apt install postgresql postgresql-contrib -y\nsudo systemctl start postgresql\nsudo -u postgres createdb mydb'
+            },
+            mongodb: {
+                windows: '# Download MongoDB from:\nhttps://www.mongodb.com/try/download/community\n# Run installer as Windows Service',
+                mac: 'brew tap mongodb/brew\nbrew install mongodb-community\nbrew services start mongodb-community',
+                ubuntu: 'wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -\necho "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list\nsudo apt update\nsudo apt install -y mongodb-org\nsudo systemctl start mongod'
+            },
+            sqlite: {
+                windows: '# Download SQLite tools from:\nhttps://www.sqlite.org/download.html\n# Extract and add to PATH',
+                mac: 'brew install sqlite3',
+                ubuntu: 'sudo apt install sqlite3 -y'
+            },
+            redis: {
+                windows: '# Download Redis from:\nhttps://github.com/microsoftarchive/redis/releases\n# Run installer, starts as service',
+                mac: 'brew install redis\nbrew services start redis',
+                ubuntu: 'sudo apt install redis-server -y\nsudo systemctl start redis-server'
+            },
+            mariadb: {
+                windows: '# Download MariaDB from:\nhttps://mariadb.org/download/\n# Run installer',
+                mac: 'brew install mariadb\nbrew services start mariadb',
+                ubuntu: 'sudo apt install mariadb-server -y\nsudo systemctl start mariadb'
+            }
+        };
+
+        const cheatSheet = {
+            laravel: {
+                highlights: ['composer create-project laravel/laravel myapp', 'php artisan migrate', 'php artisan serve'],
+                structure: ['app/Models', 'app/Http/Controllers', 'routes/web.php', 'database/migrations', '.env'],
+                notes: 'Use .env for credentials, never commit secrets.'
+            },
+            symfony: {
+                highlights: ['composer create-project symfony/skeleton myproject', 'symfony server:start', 'php bin/phpunit'],
+                structure: ['config/packages', 'src/Controller', 'src/Entity', 'src/Repository', '.env'],
+                notes: 'Use doctrine:migrations for safely evolving schema.'
+            },
+            codeigniter: {
+                highlights: ['composer create-project codeigniter4/appstarter ci4', 'php spark serve', 'php spark test'],
+                structure: ['app/Config', 'app/Controllers', 'app/Models', 'public/index.php'],
+                notes: 'Use BaseController and built-in validation.'
+            },
+            django: {
+                highlights: ['django-admin startproject myproject', 'python manage.py migrate', 'python manage.py runserver'],
+                structure: ['manage.py', 'myproject/settings.py', 'myapp/models.py', 'myapp/views.py', 'db.sqlite3'],
+                notes: 'Keep INSTALLED_APPS updated and separate settings for environments.'
+            },
+            flask: {
+                highlights: ['pip install flask flask-sqlalchemy', 'flask run', 'pytest'],
+                structure: ['app.py', 'models.py', 'requirements.txt', 'instance/database.sqlite'],
+                notes: 'Use app.app_context() for DB operations outside request cycle.'
+            },
+            fastapi: {
+                highlights: ['pip install fastapi uvicorn', 'uvicorn main:app --reload', 'pytest'],
+                structure: ['main.py', 'database.py', 'models.py', 'schemas.py'],
+                notes: 'Use Pydantic models + dependency injection for DB session.'
+            },
+            express: {
+                highlights: ['npm init -y', 'npm install express', 'node app.js'],
+                structure: ['app.js', 'models', 'routes', 'config/db.config.js', 'package.json'],
+                notes: 'Use middleware, async/await and centralized error handling.'
+            },
+            nestjs: {
+                highlights: ['npm i -g @nestjs/cli', 'nest new project', 'npm run start:dev'],
+                structure: ['src/modules', 'src/entities', 'src/services', 'ormconfig.json'],
+                notes: 'Use DTO + ValidationPipe and strict module boundaries.'
+            },
+            koa: {
+                highlights: ['npm install koa koa-router', 'node app.js', 'npm test'],
+                structure: ['app.js', 'models', 'routes', 'package.json'],
+                notes: 'Add error handling middlewares and use ctx.body for responses.'
+            }
+        };
+
+        // DOM Elements
+        const langCards = document.querySelectorAll('.lang-card');
+        const frameworkSections = document.querySelectorAll('.framework-section');
+        const frameworkCards = document.querySelectorAll('.framework-card');
+        const osOptions = document.querySelectorAll('.os-option');
+        const dbOptions = document.querySelectorAll('.db-option');
+        const themeToggle = document.getElementById('themeToggle');
+        const stackSummary = document.getElementById('stackSummary');
+        const progressIndicator = document.getElementById('progressIndicator');
+
+        // Content containers
+        const installContent = document.getElementById('installContent');
+        const packageContent = document.getElementById('packageContent');
+        const dbInstallContent = document.getElementById('dbInstallContent');
+        const projectContent = document.getElementById('projectContent');
+        const dbConfigContent = document.getElementById('dbConfigContent');
+        const testContent = document.getElementById('testContent');
+
+        // Dynamic text spans
+        const langVersion = document.getElementById('langVersion');
+        const frameworkName = document.getElementById('frameworkName');
+
+        // Utility functions
+        function updateStackSummary() {
+            const langData = frameworks[currentLang];
+            const frameworkData = langData.packages[currentFramework];
+            const osName = currentOS === 'windows' ? 'Windows' : currentOS === 'mac' ? 'macOS' : 'Ubuntu';
+            const dbName = currentDB.charAt(0).toUpperCase() + currentDB.slice(1);
+            stackSummary.textContent = `${langData.version.split(' ')[0]} + ${frameworkData.name.split(' ')[0]} + ${osName} + ${dbName}`;
+        }
+
+        function updateProgressIndicator() {
+            const steps = document.querySelectorAll('.step-card');
+            let currentStep = 1;
+            steps.forEach((step, index) => {
+                const rect = step.getBoundingClientRect();
+                if (rect.top <= 200) {
+                    currentStep = index + 1;
+                }
+            });
+            progressIndicator.textContent = `Step ${currentStep} of 11`;
+        }
+
+        function scrollToNextStep(currentStepId) {
+            const stepNum = parseInt(currentStepId.replace('step', ''));
+            if (stepNum < 11) {
+                const nextStep = document.getElementById(`step${stepNum + 1}`);
+                if (nextStep) {
+                    setTimeout(() => {
+                        nextStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 300);
+                }
+            }
+        }
+
+        // Theme Toggle Function
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+            themeToggle.classList.toggle('active');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark'));
+        }
+
+        // Load saved theme
+        function loadTheme() {
+            const savedDark = localStorage.getItem('darkMode') === 'true';
+            if (savedDark) {
+                document.body.classList.add('dark');
+                themeToggle.classList.add('active');
+            }
+        }
+
+        // Update all content based on selections
+        function updateAllContent() {
+            const langData = frameworks[currentLang];
+            const frameworkData = langData.packages[currentFramework];
+
+            if (!langData || !frameworkData) {
+                console.error('Invalid language or framework selection');
+                return;
+            }
+
+            langVersion.textContent = langData.version;
+            frameworkName.textContent = frameworkData.name;
+            updateStackSummary();
+
+            // Install content
+            const installCmd = frameworkData.download?.[currentOS] || 'Installation instructions not available for this combination.';
+            installContent.innerHTML = `
+                <h3>📥 Download ${langData.version}</h3>
+                <div class="cmd-block" data-command="${installCmd.replace(/"/g, '&quot;')}">${installCmd}</div>
+                <div class="explain-box">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Verification:</strong> After installation, open terminal/cmd and type the version command to confirm it works.
+                </div>
+            `;
+
+            // Package manager content
+            const packageCmd = frameworkData.packageManager?.[currentOS] || 'Package manager setup not available for this combination.';
+            packageContent.innerHTML = `
+                <h3>📦 Package Manager Setup</h3>
+                <div class="cmd-block" data-command="${packageCmd.replace(/"/g, '&quot;')}">${packageCmd}</div>
+                <div class="explain-box">
+                    <i class="fas fa-box"></i>
+                    <strong>What is this?</strong> Package managers install and manage dependencies for your project.
+                </div>
+            `;
+
+            // Database install
+            const dbInstallCmd = dbInstall[currentDB]?.[currentOS] || 'Database installation not available for this OS.';
+            dbInstallContent.innerHTML = `
+                <h3>🗄️ Install ${currentDB.toUpperCase()}</h3>
+                <div class="cmd-block" data-command="${dbInstallCmd.replace(/"/g, '&quot;')}">${dbInstallCmd}</div>
+                <div class="explain-box">
+                    <i class="fas fa-database"></i>
+                    <strong>After installation:</strong> Make sure the database service is running.
+                </div>
+            `;
+
+            // Project creation
+            const createCmd = frameworkData.create || 'Project creation command not available.';
+            projectContent.innerHTML = `
+                <h3>🚀 Create New ${frameworkData.name} Project</h3>
+                <div class="cmd-block" data-command="${createCmd.replace(/"/g, '&quot;')}">${createCmd}</div>
+                <div class="explain-box">
+                    <i class="fas fa-folder-open"></i>
+                    <strong>What this creates:</strong> A new project folder with all necessary files.
+                </div>
+            `;
+
+            // DB Configuration
+            const dbConfigCmd = frameworkData.dbConfig?.[currentDB] || `# Database configuration not available for ${currentDB}\n# Check framework documentation for specific setup`;
+            const isRootUser = dbConfigCmd.includes('root') && currentDB === 'mysql';
+            dbConfigContent.innerHTML = `
+                <h3>🔧 Configure ${currentDB.toUpperCase()} Connection</h3>
+                <div class="cmd-block" data-command="${dbConfigCmd.replace(/"/g, '&quot;')}">${dbConfigCmd}</div>
+                ${isRootUser ? '<div class="explain-box warning-box"><i class="fas fa-exclamation-triangle"></i><strong>Security Warning:</strong> Avoid using the root database user in production. Create a dedicated database user with limited privileges.</div>' : ''}
+                <div class="explain-box${isRootUser ? ' error-box' : ''}">
+                    <i class="fas fa-shield-alt"></i>
+                    <strong>Security Best Practice:</strong> Never commit database credentials to Git! Use environment variables instead.
+                </div>
+            `;
+
+            // Test content
+            const runCmd = frameworkData.run || 'Run command not available.';
+            const testCmd = frameworkData.test || 'Test command not available.';
+            testContent.innerHTML = `
+                <h3>✅ Run Your Application</h3>
+                <div class="cmd-block" data-command="# Start the development server\n${runCmd}\n\n# Run tests\n${testCmd}"># Start the development server\n${runCmd}\n\n# Run tests\n${testCmd}</div>
+                <div class="explain-box success-box">
+                    <i class="fas fa-check-circle"></i>
+                    <strong>Success!</strong> If you see the welcome page and tests pass, your setup is complete.
+                </div>
+            `;
+
+            const cheat = cheatSheet[currentFramework] || {
+                highlights: [],
+                structure: [],
+                notes: 'Use best practices and official documentation for details.'
+            };
+            const cheatHTML = `
+                <h3>📘 Quick Cheat Summary</h3>
+                <div class="explain-box">
+                    <strong>Fast commands:</strong><br>
+                    ${cheat.highlights.map(cmd => `• ${cmd}`).join('<br>')}
+                </div>
+                <div class="explain-box success-box">
+                    <strong>Structure checklist:</strong><br>
+                    ${cheat.structure.map(path => `• ${path}`).join('<br>')}
+                </div>
+                <div class="explain-box warning-box">
+                    <strong>Pro tip:</strong> ${cheat.notes}
+                </div>
+                <div class="explain-box">
+                    <strong>DB special:</strong> ${frameworkData.dbConfig?.[currentDB] ? 'Check your DB env and avoid plain passwords in source prods.' : 'Check database driver and adapt to your environment.'}
+                </div>
+            `;
+            document.getElementById('cheatContent').innerHTML = cheatHTML;
+
+            attachCopyButtons();
+        }
+
+        // Copy buttons function
+        function attachCopyButtons() {
+            document.querySelectorAll('.cmd-block').forEach(block => {
+                if (block.querySelector('.copy-btn')) return;
+                const btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.innerHTML = '<i class="far fa-copy"></i> copy';
+                btn.onclick = async () => {
+                    const command = block.getAttribute('data-command') || block.textContent.trim();
+                    try {
+                        await navigator.clipboard.writeText(command);
+                        btn.innerHTML = '<i class="fas fa-check"></i> copied';
+                        setTimeout(() => btn.innerHTML = '<i class="far fa-copy"></i> copy', 1500);
+                    } catch (err) {
+                        console.error('Failed to copy:', err);
+                        btn.innerHTML = '<i class="fas fa-times"></i> failed';
+                        setTimeout(() => btn.innerHTML = '<i class="far fa-copy"></i> copy', 1500);
+                    }
+                };
+                block.appendChild(btn);
+            });
+        }
+
+        // Event handlers
+        langCards.forEach(card => {
+            card.addEventListener('click', () => {
+                langCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                currentLang = card.dataset.lang;
+                localStorage.setItem('currentLang', currentLang);
+
+                // Show correct framework section
+                frameworkSections.forEach(s => s.classList.remove('active'));
+                document.getElementById(`${currentLang}-frameworks`).classList.add('active');
+
+                // Set default framework for this language
+                const firstFramework = document.querySelector(`#${currentLang}-frameworks .framework-card`);
+                if (firstFramework) {
+                    currentFramework = firstFramework.dataset.framework;
+                    localStorage.setItem('currentFramework', currentFramework);
+                    document.querySelectorAll('.framework-card').forEach(f => f.classList.remove('active'));
+                    firstFramework.classList.add('active');
+                }
+
+                updateAllContent();
+                scrollToNextStep('step1');
+            });
+        });
+
+        frameworkCards.forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.framework-card').forEach(f => f.classList.remove('active'));
+                card.classList.add('active');
+                currentFramework = card.dataset.framework;
+                localStorage.setItem('currentFramework', currentFramework);
+                updateAllContent();
+                scrollToNextStep('step2');
+            });
+        });
+
+        osOptions.forEach(opt => {
+            opt.addEventListener('click', () => {
+                osOptions.forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+                currentOS = opt.dataset.os;
+                localStorage.setItem('currentOS', currentOS);
+                updateAllContent();
+                scrollToNextStep('step3');
+            });
+        });
+
+        dbOptions.forEach(opt => {
+            opt.addEventListener('click', () => {
+                dbOptions.forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+                currentDB = opt.dataset.db;
+                localStorage.setItem('currentDB', currentDB);
+                updateAllContent();
+                scrollToNextStep('step6');
+            });
+        });
+
+        // Theme toggle
+        themeToggle.addEventListener('click', toggleTheme);
+
+        // Mobile menu
+        document.getElementById('menuToggle').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('main').classList.toggle('open');
+        });
+
+        // Sidebar navigation
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href');
+                document.querySelector(targetId).scrollIntoView({ behavior: 'smooth' });
+
+                document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+                link.classList.add('active');
+
+                if (window.innerWidth <= 768) {
+                    document.getElementById('sidebar').classList.remove('open');
+                    document.getElementById('main').classList.remove('open');
+                }
+            });
+        });
+
+        // Scroll spy and progress update
+        window.addEventListener('scroll', () => {
+            const steps = document.querySelectorAll('.step-card');
+            let current = '';
+            steps.forEach(step => {
+                const rect = step.getBoundingClientRect();
+                if (rect.top <= 200) {
+                    current = step.getAttribute('id');
+                }
+            });
+            document.querySelectorAll('.sidebar a').forEach(a => {
+                a.classList.remove('active');
+                if (a.getAttribute('href') === `#${current}`) {
+                    a.classList.add('active');
+                }
+            });
+            updateProgressIndicator();
+        });
+
+        // Initialize
+        loadTheme();
+
+        // Set active selections from localStorage
+        document.querySelector(`[data-lang="${currentLang}"]`).classList.add('active');
+        document.querySelector(`[data-framework="${currentFramework}"]`).classList.add('active');
+        document.querySelector(`[data-os="${currentOS}"]`).classList.add('active');
+        document.querySelector(`[data-db="${currentDB}"]`).classList.add('active');
+
+        // Show correct framework section
+        frameworkSections.forEach(s => s.classList.remove('active'));
+        document.getElementById(`${currentLang}-frameworks`).classList.add('active');
+
+        updateAllContent();
+        updateProgressIndicator();
+    })();
+</script>
+</body>
+</html>

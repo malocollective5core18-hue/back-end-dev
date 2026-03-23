@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Framework Cheat Sheet · Backend & Database Quick Guide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f7fc;
+      --surface: #fff;
+      --border: #dbe5f4;
+      --text: #1f3145;
+      --text-light: #4a6587;
+      --accent: #2f6bff;
+      --code-bg: #1f2f43;
+      --code-text: #e8f2ff;
+      --info-bg: #edf3ff;
+      --success-bg: #e6f9ef;
+      --warning-bg: #fff8e6;
+    }
+    body.dark {
+      --bg: #0f1a2b;
+      --surface: #18233a;
+      --border: #273a58;
+      --text: #dde6f6;
+      --text-light: #96a9c6;
+      --accent: #66a6ff;
+      --code-bg: #132039;
+      --code-text: #d7e6fb;
+      --info-bg: #1f3045;
+      --success-bg: #1e2f40;
+      --warning-bg: #2b2b19;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; line-height: 1.6; transition: all 0.25s ease; }
+    .container { max-width: 1180px; margin: 0 auto; padding: 1.5rem; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 2px solid var(--border); padding-bottom: 1rem; }
+    h1 { font-size: 1.8rem; display: flex; align-items: center; gap: 0.6rem; }
+    .theme-toggle { width: 52px; height: 28px; border-radius: 999px; background: var(--border); position: relative; cursor: pointer; }
+    .theme-toggle::after { content: ''; position: absolute; width: 24px; height: 24px; border-radius: 50%; top: 2px; left: 2px; background: #fff; transition: transform 0.25s; }
+    .theme-toggle.active { background: var(--accent); }
+    .theme-toggle.active::after { transform: translateX(24px); }
+    .subtitle { margin: .4rem 0 1.2rem; color: var(--text-light); }
+    .selector-row { display: flex; gap: 0.65rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .lang-pill { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 999px; padding: 0.45rem 0.95rem; cursor: pointer; transition: all 0.2s ease; }
+    .lang-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .card.active { border-color: var(--accent); box-shadow: 0 4px 14px rgba(67,97,238,0.22); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(300px,1fr)); gap: 1.15rem; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem; min-height: 300px; display: flex; flex-direction: column; }
+    .card h2 { font-size: 1.28rem; margin-bottom: .3rem; color: var(--accent); }
+    .card p { color: var(--text-light); margin-bottom: .75rem; }
+    .card .badge { display: inline-block; background: var(--accent); color: #fff; border-radius: 10px; padding: .2rem .6rem; font-size: .75rem; margin-bottom: .8rem; }
+    .card ul { margin: 0.4rem 0 0.8rem 1.2rem; color: var(--text); }
+    .card ul li { margin-bottom: .45rem; font-size: .88rem; }
+    .code-block, .file-tree, .info-box { border-radius: 10px; margin: 0.65rem 0; font-family: 'JetBrains Mono', monospace; font-size: .82rem; }
+    .code-block, .file-tree { background: var(--code-bg); color: var(--code-text); padding: 0.75rem; overflow-x: auto; }
+    .info-box { background: var(--info-bg); border-left: 4px solid var(--accent); padding: .72rem; color: var(--text); }
+    .tip-grid { margin-top: 1.2rem; gap: .8rem; display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); }
+    .tip-item { background: var(--success-bg); border: 1px solid var(--border); border-radius: 10px; padding: .55rem .7rem; font-size: .8rem; }
+    .global-note { margin-top: 1rem; background: var(--warning-bg); border-left: 4px solid #f6a516; padding: .8rem; color: var(--text); border-radius: 10px; }
+    @media(max-width: 740px){ .grid{grid-template-columns:1fr;} .header{flex-direction:column;align-items:flex-start;gap:.7rem;} }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-book"></i> Framework & DB Cheat Sheet</h1>
+      <div class="theme-toggle" id="themeToggle"></div>
+    </div>
+    <div class="subtitle">Fast, ready-to-copy reference: install, structure, key commands, pitfalls, and SQL-brain map.</div>
+
+    <div class="selector-row" id="languageSelector">
+      <button class="lang-pill active" data-lang="php">PHP</button>
+      <button class="lang-pill" data-lang="python">Python</button>
+      <button class="lang-pill" data-lang="node">Node.js</button>
+    </div>
+
+    <div class="grid">
+      <div class="card" data-lang="php" data-framework="laravel">
+        <h2><i class="fab fa-laravel"></i> Laravel (PHP)</h2>
+        <span class="badge">PHP / MVC</span>
+        <p>Best for full-stack PHP with strong conventions and mature ecosystem.</p>
+        <ul>
+          <li><strong>Init:</strong> composer create-project --prefer-dist laravel/laravel app</li>
+          <li><strong>DB:</strong> .env DB_* + php artisan migrate</li>
+          <li><strong>Route:</strong> routes/web.php, controllers in app/Http/Controllers</li>
+          <li><strong>Model:</strong> app/Models/User.php + Eloquent ORM</li>
+          <li><strong>Seed:</strong> php artisan db:seed</li>
+        </ul>
+        <div class="file-tree">📁 myapp/<br>├── app/<br>│   ├── Models/<br>│   └── Http/Controllers/<br>├── routes/web.php<br>├── database/migrations/<br>└── .env</div>
+        <div class="info-box"><strong>Common pitfall:</strong> forgetting to set DB_CONNECTION and matching driver package in composer.json.</div>
+        <div class="tip-grid">
+          <span class="tip-item">Use tinker: php artisan tinker</span>
+          <span class="tip-item">Clear cache: php artisan optimize:clear</span>
+          <span class="tip-item">Use factories for consistent tests</span>
+        </div>
+      </div>
+
+      <div class="card" data-lang="python" data-framework="django">
+        <h2><i class="fab fa-python"></i> Django (Python)</h2>
+        <span class="badge">Python / MTV</span>
+        <p>Take 95% of common tasks out of the box (auth, admin, ORM).</p>
+        <ul>
+          <li><strong>Init:</strong> django-admin startproject myproject</li>
+          <li><strong>App:</strong> python manage.py startapp myapp</li>
+          <li><strong>DB:</strong> configure DATABASES in settings.py, then migrate</li>
+          <li><strong>Run:</strong> python manage.py runserver</li>
+          <li><strong>Admin:</strong> python manage.py createsuperuser</li>
+        </ul>
+        <div class="file-tree">📁 myproject/<br>├── manage.py<br>├── myproject/settings.py<br>├── myapp/models.py<br>├── myapp/views.py<br>└── db.sqlite3</div>
+        <div class="info-box"><strong>Common pitfall:</strong> forget to add app to INSTALLED_APPS before running makemigrations.</div>
+        <div class="tip-grid">
+          <span class="tip-item">Use QuerySet caching carefully</span>
+          <span class="tip-item">Avoid .all() in templates for perf</span>
+          <span class="tip-item">Run python manage.py check</span>
+        </div>
+      </div>
+
+      <div class="card" data-lang="node" data-framework="express">
+        <h2><i class="fab fa-node-js"></i> Express (Node.js)</h2>
+        <span class="badge">Node.js / Minimal</span>
+        <p>Lightweight API/ backend with custom middleware and DB choice freedom.</p>
+        <ul>
+          <li><strong>Init:</strong> npm init -y + npm install express</li>
+          <li><strong>Main:</strong> app.js / server.js with app.use(express.json())</li>
+          <li><strong>Routes:</strong> app.get('/api', ...), separated with router modules</li>
+          <li><strong>DB:</strong> sequelize/mongoose; .env for creds</li>
+          <li><strong>Run:</strong> node app.js or nodemon app.js</li>
+        </ul>
+        <div class="file-tree">📁 express-app/<br>├── app.js<br>├── models/User.js<br>├── routes/api.js<br>├── config/db.config.js<br>└── package.json</div>
+        <div class="info-box"><strong>Common pitfall:</strong> missing async error handling (use express-async-errors or try/catch in async route handlers).</div>
+        <div class="tip-grid">
+          <span class="tip-item">Use helmet + cors for security</span>
+          <span class="tip-item">Avoid callback hell (use async/await)</span>
+          <span class="tip-item">Use dotenv for env vars</span>
+        </div>
+      </div>
+
+      <div class="card" data-lang="python" data-framework="flask">
+        <h2><i class="fas fa-flask"></i> Flask (Python)</h2>
+        <span class="badge">Python / Micro</span>
+        <p>Great for small APIs and when you want explicit control with minimal magic.</p>
+        <ul>
+          <li><strong>Init:</strong> pip install flask flask-sqlalchemy</li>
+          <li><strong>App:</strong> create app in app.py and register blueprints</li>
+          <li><strong>DB:</strong> SQLALCHEMY_DATABASE_URI + db.create_all()</li>
+          <li><strong>Routes:</strong> @app.route('/'), return jsonify()</li>
+          <li><strong>Run:</strong> python app.py (or FLASK_APP=app flask run)</li>
+        </ul>
+        <div class="file-tree">📁 flask_app/<br>├── app.py<br>├── models.py<br>├── requirements.txt<br>└── instance/database.sqlite</div>
+        <div class="info-box"><strong>Common pitfall:</strong> Not using app.app_context() when working with db outside request context.</div>
+        <div class="tip-grid">
+          <span class="tip-item">Use Flask-Migrate for schema evolution</span>
+          <span class="tip-item">Keep config separate for test/dev/prod</span>
+          <span class="tip-item">Prefer .jsonify() for API responses</span>
+        </div>
+      </div>
+
+      <div class="card" data-lang="python" data-framework="fastapi">
+        <h2><i class="fas fa-rocket"></i> FastAPI (Python)</h2>
+        <span class="badge">Python / Async</span>
+        <p>API-first, auto docs with OpenAPI, ideal for async DB drivers and modern Python typing.</p>
+        <ul>
+          <li><strong>Init:</strong> pip install fastapi uvicorn</li>
+          <li><strong>Main:</strong> app = FastAPI(); uvicorn main:app --reload</li>
+          <li><strong>Routes:</strong> @app.get('/users', response_model=List[User])</li>
+          <li><strong>DB:</strong> SQLAlchemy async or Tortoise ORM with async session</li>
+          <li><strong>Docs:</strong> /docs Swagger UI, /redoc</li>
+        </ul>
+        <div class="file-tree">📁 fastapi_project/<br>├── main.py<br>├── database.py<br>├── models.py<br>└── schemas.py</div>
+        <div class="info-box"><strong>Common pitfall:</strong> Not awaiting async DB sessions or mixing sync and async DB driver functions.</div>
+        <div class="tip-grid">
+          <span class="tip-item">Use Pydantic models for input validation</span>
+          <span class="tip-item">Lock down CORS in production</span>
+          <span class="tip-item">Use dependency injection for DB session</span>
+        </div>
+      </div>
+
+      <div class="card" data-lang="node" data-framework="nestjs">
+        <h2><i class="fas fa-crown"></i> NestJS (TypeScript)</h2>
+        <span class="badge">TypeScript / Structured</span>
+        <p>Enterprise-grade backend with strong patterns, modular design, and DI.
+</p>
+        <ul>
+          <li><strong>Init:</strong> npm i -g @nestjs/cli && nest new project</li>
+          <li><strong>Structure:</strong> src/modules, services, controllers</li>
+          <li><strong>DB:</strong> TypeORM/MikroORM config in app.module.ts</li>
+          <li><strong>Run:</strong> npm run start:dev</li>
+          <li><strong>Testing:</strong> npm run test</li>
+        </ul>
+        <div class="file-tree">📁 nest-app/<br>├── src/modules<br>├── src/entities<br>├── src/services<br>├── ormconfig.json<br>└── package.json</div>
+        <div class="info-box"><strong>Common pitfall:</strong> forgetting to register entity in module config or import module providers properly.</div>
+        <div class="tip-grid">
+          <span class="tip-item">Use DTOs + validation pipe</span>
+          <span class="tip-item">Use guard for auth on routes</span>
+          <span class="tip-item">Use class-transformer to map DTOs</span>
+        </div>
+      </div>
+
+      <div class="card" data-lang="php" data-framework="symfony">
+        <h2><i class="fas fa-cubes"></i> Symfony (PHP)</h2>
+        <span class="badge">PHP / Components</span>
+        <p>Robust, configurable with Doctrine ORM and reusable bundles.</p>
+        <ul>
+          <li><strong>Init:</strong> composer create-project symfony/skeleton myproject</li>
+          <li><strong>DB:</strong> DATABASE_URL in .env, doctrine:migrations:migrate</li>
+          <li><strong>Routing:</strong> config/routes.yaml or attributes in controllers</li>
+          <li><strong>Entity:</strong> src/Entity/Product.php w/ annotations</li>
+          <li><strong>Run:</strong> symfony server:start</li>
+        </ul>
+        <div class="file-tree">📁 myproject/<br>├── config/packages<br>├── src/Controller<br>├── src/Entity<br>├── src/Repository<br>└── .env</div>
+        <div class="info-box"><strong>Common pitfall:</strong> mismatched DB URL scheme (e.g., mysql:// vs mysql2://) or missing bundle setup.</div>
+        <div class="tip-grid">
+          <span class="tip-item">Use console commands for debugging</span>
+          <span class="tip-item">Use autowiring for services</span>
+          <span class="tip-item">Keep config YAML clean</span>
+        </div>
+      </div>
+
+      <div class="card" data-lang="php" data-framework="codeigniter">
+        <h2><i class="fas fa-bolt"></i> CodeIgniter 4 (PHP)</h2>
+        <span class="badge">PHP / MicroMVC</span>
+        <p>Fast and simple with minimal bootstrapping; good for small APIs.</p>
+        <ul>
+          <li><strong>Init:</strong> composer create-project codeigniter4/appstarter ci4</li>
+          <li><strong>DB:</strong> app/Config/Database.php + migrations/seeders</li>
+          <li><strong>Controller:</strong> app/Controllers/Home.php</li>
+          <li><strong>Model:</strong> app/Models/UserModel.php</li>
+          <li><strong>Run:</strong> php spark serve</li>
+        </ul>
+        <div class="file-tree">📁 ci4/<br>├── app/Config<br>├── app/Models<br>├── app/Controllers<br>└── public/index.php</div>
+        <div class="info-box"><strong>Common pitfall:</strong> not setting baseURL or escaping output in views to prevent XSS.</div>
+        <div class="tip-grid">
+          <span class="tip-item">Use built-in validation rules</span>
+          <span class="tip-item">Prefer Query Builder for DB queries</span>
+          <span class="tip-item">Use filters for auth</span>
+        </div>
+      </div>
+
+      <div class="card" data-lang="node" data-framework="koa">
+        <h2><i class="fas fa-leaf"></i> Koa (Node.js)</h2>
+        <span class="badge">Node.js / Async</span>
+        <p>Minimal middleware core; choose your own level of structure.</p>
+        <ul>
+          <li><strong>Init:</strong> npm init -y + npm install koa koa-router</li>
+          <li><strong>App:</strong> const app = new Koa(); app.use(router.routes())</li>
+          <li><strong>DB:</strong> mongoose for MongoDB or knex for SQL</li>
+          <li><strong>Error:</strong> use koa-bodyparser + try/catch middleware</li>
+          <li><strong>Run:</strong> node app.js</li>
+        </ul>
+        <div class="file-tree">📁 koa-app/<br>├── app.js<br>├── models/<br>├── routes/<br>└── package.json</div>
+        <div class="info-box"><strong>Common pitfall:</strong> no error handler leads to unhandled rejections; add app.on('error', ...).</div>
+        <div class="tip-grid">
+          <span class="tip-item">Use koa-router for route groups</span>
+          <span class="tip-item">Use koa-compose for middleware order</span>
+          <span class="tip-item">Return JSON with ctx.body</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="global-note">
+      <strong>Universal cheat sheet:</strong> setup config in env, model/tables first, migration versioning, explicit error handling, and use prepared statements or ORM-safe query builders for security.
+    </div>
+  </div>
+
+  <script>
+    const theme = document.getElementById('themeToggle');
+    const isDark = localStorage.getItem('darkMode') === 'true';
+    if (isDark) { document.body.classList.add('dark'); theme.classList.add('active'); }
+    theme.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      const state = document.body.classList.contains('dark');
+      localStorage.setItem('darkMode', String(state));
+      theme.classList.toggle('active', state);
+    });
+
+    const langButtons = document.querySelectorAll('.lang-pill');
+    const frameworkCards = document.querySelectorAll('.grid .card');
+
+    function setLanguage(lang) {
+      langButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
+      frameworkCards.forEach(card => {
+        const show = card.dataset.lang === lang;
+        card.style.display = show ? 'flex' : 'none';
+        card.classList.toggle('active', false);
+      });
+      const first = document.querySelector(`.grid .card[data-lang="${lang}"]`);
+      if (first) {
+        first.classList.add('active');
+      }
+      localStorage.setItem('tipsLang', lang);
+    }
+
+    function initFrameworkSelect() {
+      const savedLang = localStorage.getItem('tipsLang') || 'php';
+      setLanguage(savedLang);
+
+      langButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          setLanguage(btn.dataset.lang);
+        });
+      });
+
+      frameworkCards.forEach(card => {
+        card.addEventListener('click', () => {
+          frameworkCards.forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+        });
+      });
+    }
+
+    initFrameworkSelect();
+  </script>
+</body>
+</html>
